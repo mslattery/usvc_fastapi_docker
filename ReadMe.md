@@ -23,19 +23,23 @@
 terraform init
 
 # Create the ECR repo
-terraform apply -target=aws_ecr_repository.api_repo --auto-approve
+terraform apply --target=aws_ecr_repository.api_repo --auto-approve
 
 # Log in to the ECR registry
-aws ecr get-login-password --region <YOUR_AWS_REGION> | docker login --username AWS --password-stdin <YOUR_AWS_ACCOUNT_ID>.dkr.ecr.<YOUR_AWS_REGION>.amazonaws.com
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 051055614445.dkr.ecr.us-east-1.amazonaws.com
 
 # Build the Docker image
 docker build -t quick-api-repo .
 
+docker buildx build --platform linux/amd64 --provenance=false -t quick-api-repo:latest .
+
+
+
 # Tag the image for ECR
-docker tag quick-api-repo:latest <YOUR_AWS_ACCOUNT_ID>.dkr.ecr.<YOUR_AWS_REGION>.amazonaws.com/quick-api-repo:latest
+docker tag quick-api-repo:latest 051055614445.dkr.ecr.us-east-1.amazonaws.com/quick-api-repo:latest
 
 # Push the image to ECR
-docker push <YOUR_AWS_ACCOUNT_ID>.dkr.ecr.<YOUR_AWS_REGION>.amazonaws.com/quick-api-repo:latest
+docker push 051055614445.dkr.ecr.us-east-1.amazonaws.com/quick-api-repo:latest
 
 # Make it so
 terraform apply --auto-approve

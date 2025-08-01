@@ -1,14 +1,16 @@
 # main.tf
 
-# Configure the AWS provider
-provider "aws" {
-  region = "us-east-1" # You can change this to your preferred region
-}
-
 # 1. Create an ECR repository to store our Docker image
 resource "aws_ecr_repository" "api_repo" {
   name                 = "quick-api-repo"
   image_tag_mutability = "MUTABLE" # Allows us to overwrite tags like 'latest'
+  force_delete         = true
+  tags =  merge(var.common_tags, {
+    name = "quick-api-repo"
+  })  
+  image_scanning_configuration {
+    scan_on_push = true
+  }
 }
 
 # 2. Create an IAM role for the Lambda function
@@ -17,11 +19,11 @@ resource "aws_iam_role" "lambda_exec_role" {
   name = "quick-api-lambda-exec-role"
 
   assume_role_policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [
       {
-        Action    = "sts:AssumeRole",
-        Effect    = "Allow",
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
         Principal = {
           Service = "lambda.amazonaws.com"
         }
@@ -36,14 +38,25 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# Attach the ECR read-only policy to the role
+resource "aws_iam_role_policy_attachment" "ecr_read_only" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+
+# Add this data source to find the image with the 'latest' tag
+data "aws_ecr_image" "api_image" {
+  repository_name = aws_ecr_repository.api_repo.name
+  image_tag       = "latest"
+}
+
 # 3. Create the Lambda function itself from a Docker image
 resource "aws_lambda_function" "api_lambda" {
   function_name = "quick-api-function"
   role          = aws_iam_role.lambda_exec_role.arn
   package_type  = "Image" # Specify we are using a container image
-
-  # Point to the image in our ECR repository
-  image_uri = "${aws_ecr_repository.api_repo.repository_url}:latest"
+  image_uri     = "${aws_ecr_repository.api_repo.repository_url}@${data.aws_ecr_image.api_image.id}"
 }
 
 # 4. Create the API Gateway to expose the Lambda to the internet
@@ -81,15 +94,4 @@ resource "aws_lambda_permission" "api_gateway_permission" {
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
-}
-
-# Output the repository URL and the final API endpoint
-output "ecr_repository_url" {
-  description = "The URL of the ECR repository"
-  value       = aws_ecr_repository.api_repo.repository_url
-}
-
-output "api_endpoint" {
-  description = "The URL endpoint for the API Gateway"
-  value       = aws_apigatewayv2_stage.api_stage.invoke_url
 }
