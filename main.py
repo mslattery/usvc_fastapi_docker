@@ -1,38 +1,68 @@
-# main.py
-from fastapi import FastAPI
-from mangum import Mangum
-from starlette.requests import Request
-import cowsay
+import os
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import HTMLResponse
+from fastapi_sso.sso.google import GoogleSSO
+from jose import jwt
 
+# Import the versioned routers
+from api.v1 import endpoints as v1_endpoints
+from api.v2 import endpoints as v2_endpoints
 
-app = FastAPI(title="My Quick API")
+# Load credentials from environment variables
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
+app = FastAPI(title="SSO-Protected Versioned API")
 
-@app.on_event("startup")
-async def startup_event():
-    pass
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    pass
-
-
-@app.get("/")
-def read_root(request: Request):
-    return {"message": cowsay.get_output_string("tux", "Ding Ding")}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
-
-
-# Mangum is an adapter for running ASGI applications in a Lambda environment.
-handler = Mangum(
-    app,
-    lifespan="auto",
-    api_gateway_base_path=None,
-    custom_handlers=None,
-    text_mime_types=None,
+# Initialize Google SSO
+google_sso = GoogleSSO(
+    client_id=GOOGLE_CLIENT_ID,
+    client_secret=GOOGLE_CLIENT_SECRET,
+    #redirect_uri="https://eiq13rppi9.execute-api.us-east-1.amazonaws.com/auth/callback",
+    redirect_uri="http://localhost:8989/auth/callback",
+    allow_insecure_http=True,  # Use False in production with HTTPS
 )
+
+# --- SSO and Auth Routes ---
+@app.get("/auth/login", tags=["auth"])
+async def auth_login():
+    """Redirects the user to Google for authentication."""
+    # Use the SSO object as a context manager for security
+    async with google_sso:
+        return await google_sso.get_login_redirect()
+
+@app.get("/auth/callback", tags=["auth"])
+async def auth_callback(request: Request):
+    """Processes the authentication response from Google."""
+    # Use the SSO object as a context manager for security
+    async with google_sso:
+        user = await google_sso.verify_and_process(request)
+    
+    if not user:
+        return HTMLResponse(content="<p>Authentication failed. Please try again.</p>", status_code=401)
+    
+    session_token = jwt.encode(user.model_dump(), SECRET_KEY, algorithm="HS256")
+    
+    response = HTMLResponse(content="<p>Successfully authenticated! You can now use the API. <a href='/api/v1/items/1'>Try V1</a> | <a href='/api/v2/items/1'>Try V2</a> | <a href='/auth/logout'>Logout</a></p>")
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {session_token}",
+        httponly=True
+    )
+    return response
+
+@app.get("/auth/logout", tags=["auth"])
+async def auth_logout(response: Response):
+    response = HTMLResponse(content="<p>You have been logged out. <a href='/'>Home</a></p>")
+    response.delete_cookie("access_token")
+    return response
+
+# --- Mount API Version Routers ---
+
+app.include_router(v1_endpoints.router, prefix="/api/v1", tags=["v1"])
+app.include_router(v2_endpoints.router, prefix="/api/v2", tags=["v2"])
+
+@app.get("/", tags=["Root"])
+def read_root():
+    return HTMLResponse('<h1>SSO Protected API</h1><a href="/auth/login">Login with Google</a>')
