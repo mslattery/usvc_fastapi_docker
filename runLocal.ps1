@@ -1,6 +1,10 @@
+param (
+    [Int16]$Port = 8989
+)
+
 function Ensure-PythonVenvActive {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$VenvPath
     )
 
@@ -31,18 +35,12 @@ function Ensure-PythonVenvActive {
     }
 }
 
-# # Load .env file
-# get-content .env | foreach {
-#     $name, $value = $_.split('=')
-#     set-content env:\$name $value
-# }
-
 # Read the .env file line by line
 Get-Content .env | ForEach-Object {
     # Check if the line is not empty and contains an equals sign
     if (-not [string]::IsNullOrWhiteSpace($_) -and $_.Contains('=')) {
         # Remove the "export " prefix if it exists
-        $line = $_.Trim() -replace '^export ',''
+        $line = $_.Trim() -replace '^export ', ''
 
         # Split the line into a key and value at the first '='
         $key, $value = $line.Split('=', 2)
@@ -56,9 +54,12 @@ Get-Content .env | ForEach-Object {
     }
 }
 
-$myVenvPath = ".\.venv" # Or the specific path to your venv
+$myVenvPath = ".\.venv"
 Ensure-PythonVenvActive -VenvPath $myVenvPath
 
-# .\venv\Scripts\Activate.ps1
+if ($Port -lt 1024 -or $Port -gt 65535) {
+    Write-Error "Port number must be between 1024 and 65535."
+    exit 1
+}
 
-uvicorn main:app --reload --port 8989
+uvicorn main:app --reload --port $Port
