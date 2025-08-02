@@ -263,3 +263,7 @@ docker run -p 8888:8000 -e GOOGLE_CLIENT_ID="YOUR_GOOGLE_CLIENT_ID" -e GOOGLE_CL
     .\venv\Scripts\Activate.ps1
 
 uvicorn main:app --reload --port 8989
+
+
+### Secure
+https://escape.tech/blog/how-to-secure-fastapi-api/
