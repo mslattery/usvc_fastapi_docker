@@ -1,6 +1,6 @@
-pushd
-./build.ps1
+Push-Location
+./buildImage.ps1
 docker push 051055614445.dkr.ecr.us-east-1.amazonaws.com/quick-api-repo:latest
-cd tf
+Set-Location tf
 terraform apply --auto-approve
-popd
+Pop-Location

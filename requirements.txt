@@ -1,3 +1,4 @@
-fastapi
 mangum
-cowsay
+fastapi[all]
+fastapi-sso
+python-jose[cryptography]

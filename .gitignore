@@ -35,3 +35,5 @@ terraform.rc
 .DS_Store # macOS
 
 .env
+
+__pycache__/
