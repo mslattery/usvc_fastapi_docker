@@ -13,7 +13,20 @@ GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-app = FastAPI(title="SSO-Protected Versioned API")
+# App definition
+app = FastAPI(
+    title="usvc_fastapi_docker API",
+    description="",
+    version="1.0.0",
+    contact={
+        "name": "Slats",
+        "email": "test@sncsoftware.com"
+    },
+    license_info={
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+    }
+)
 
 # Initialize Google SSO
 google_sso = GoogleSSO(
