@@ -1,4 +1,5 @@
 import jwt
+import logging
 from jwt.exceptions import PyJWTError
 from fastapi import Depends, HTTPException, status, Header, Query, Request
 from typing import Annotated
@@ -10,6 +11,9 @@ from auth.OktaAuthService import OktaAuthService
 from auth.MockAuthService import MockAuthService
 from auth.authService import AuthService
 from models.user import User
+
+# Get a logger instance for this module. The name will be 'some_module'
+log = logging.getLogger(__name__)
 
 config = Config(".env")
 SECRET_KEY = config("SECRET_KEY", cast=Secret, default="A_RANDOM_SECRET_KEY")
@@ -29,6 +33,7 @@ def get_auth_service_from_header(x_auth_provider: Annotated[str | None, Header()
         )
 
 def get_auth_service_from_query(provider: Annotated[str, Query(enum=["google", "okta", "mock"])]) -> AuthService:
+    log.info(f"get_auth_service_from_query called with provider: {provider}")
     """Dependency that provides an auth service based on the 'provider' query parameter."""
     if provider == "google":
         return GoogleAuthService()

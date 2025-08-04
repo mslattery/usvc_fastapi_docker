@@ -2,6 +2,8 @@
 # File: testAuth.py (Main Application)
 # =================================================================
 import logging
+import logging_config
+
 from typing import Annotated
 from fastapi import FastAPI, Depends, HTTPException, Header, Request, Response as FastAPIResponse
 from fastapi.responses import HTMLResponse
@@ -16,7 +18,7 @@ from api.v1 import endpoints as v1_endpoints
 from api.v2 import endpoints as v2_endpoints
 
 # Configure basic logging
-logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(asctime)s - %(filename)s - line:%(lineno)d - func:%(funcName)s - %(message)s')
+logging_config.setup_logging()
 logger = logging.getLogger(__name__)
 logger.info("Starting FastAPI application...")
 
