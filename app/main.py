@@ -2,6 +2,8 @@
 # File: testAuth.py (Main Application)
 # =================================================================
 import logging
+
+import uvicorn
 import logging_config
 
 from opentelemetry import metrics
@@ -103,3 +105,7 @@ def read_root():
     </body>
     """
     return HTMLResponse(content=content)
+
+
+if __name__ == "__main__":
+    uvicorn.run("app.main:app", host="0.0.0.0", log_level="info")
