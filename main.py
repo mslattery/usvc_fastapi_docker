@@ -4,6 +4,8 @@
 import logging
 import logging_config
 
+from opentelemetry import metrics
+
 from typing import Annotated
 from fastapi import FastAPI, Depends, HTTPException, Header, Request, Response as FastAPIResponse
 from fastapi.responses import HTMLResponse
@@ -11,6 +13,7 @@ from fastapi.responses import HTMLResponse
 # Import all services and the base class/model
 from auth.dependencies import get_auth_service_from_query, get_auth_service_from_header, get_current_active_user
 from auth.authService import AuthService
+from metrics.instrument import instrument_app
 from models.user import User
 
 # Import the versioned routers
@@ -30,12 +33,13 @@ app = FastAPI(
     contact={"name": "Slats", "email": "test@sncsoftware.com"},
     license_info={"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
 )
+# --- Apply Instrumentation ---
+instrument_app(app)
 
 # --- Include the API Router ---
 app.include_router(v1_endpoints.router, prefix="/api/v1", tags=["v1"])
 app.include_router(v2_endpoints.router, prefix="/api/v2", tags=["v2"])
 
-# --- Authentication Flow Endpoints ---
 # --- Authentication Flow Endpoints ---
 @app.get("/auth/login", tags=["Authentication"])
 async def login(

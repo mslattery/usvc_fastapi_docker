@@ -1,18 +1,17 @@
 # =================================================================
 # api/v1/endpoint.py
 # =================================================================
-from fastapi import APIRouter, Depends
 from typing import Annotated
-
-# Import the new dependency and the User model
+from fastapi import APIRouter, Depends
 from auth.dependencies import get_current_active_user
 from models.user import User
+from metrics.app import app_counter
 
 router = APIRouter()
 
 # Healthcheck endpoint
 @router.get("/health", description="Healthcheck endpoint")
-async def healthcheck():
+async def healthcheck():  
     return {"status": "ok"} 
 
 @router.get("/items/{item_id}", description="Get an item by its ID", response_model=dict)
