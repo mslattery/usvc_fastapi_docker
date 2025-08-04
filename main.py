@@ -7,11 +7,22 @@ import logging_config
 from opentelemetry import metrics
 
 from typing import Annotated
-from fastapi import FastAPI, Depends, HTTPException, Header, Request, Response as FastAPIResponse
+from fastapi import (
+    FastAPI,
+    Depends,
+    HTTPException,
+    Header,
+    Request,
+    Response as FastAPIResponse,
+)
 from fastapi.responses import HTMLResponse
 
 # Import all services and the base class/model
-from auth.dependencies import get_auth_service_from_query, get_auth_service_from_header, get_current_active_user
+from auth.dependencies import (
+    get_auth_service_from_query,
+    get_auth_service_from_header,
+    get_current_active_user,
+)
 from auth.authService import AuthService
 from metrics.instrument import instrument_app
 from models.user import User
@@ -40,13 +51,15 @@ instrument_app(app)
 app.include_router(v1_endpoints.router, prefix="/api/v1", tags=["v1"])
 app.include_router(v2_endpoints.router, prefix="/api/v2", tags=["v2"])
 
+
 # --- Authentication Flow Endpoints ---
 @app.get("/auth/login", tags=["Authentication"])
 async def login(
-    auth_service: Annotated[AuthService, Depends(get_auth_service_from_query)]
+    auth_service: Annotated[AuthService, Depends(get_auth_service_from_query)],
 ) -> FastAPIResponse:
     logger.info("Login...")
     return await auth_service.auth_login_redirect()
+
 
 @app.get("/auth/callback", tags=["Authentication"])
 async def callback(
@@ -55,22 +68,25 @@ async def callback(
 ) -> FastAPIResponse:
     return await auth_service.auth_callback(request)
 
+
 @app.get("/auth/logout", tags=["Authentication"])
 async def logout(
-    auth_service: Annotated[AuthService, Depends(get_auth_service_from_query)]
+    auth_service: Annotated[AuthService, Depends(get_auth_service_from_query)],
 ) -> FastAPIResponse:
     return await auth_service.auth_logout()
 
+
 @app.get("/users/me", response_model=User, tags=["User"])
 async def read_current_user(
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     """
     Get the current authenticated user's details.
     This endpoint is protected and requires 'X-Auth-Provider' and 'Authorization' headers.
     """
     return current_user
-        
+
+
 # --- Root Endpoint ---
 @app.get("/", tags=["General"])
 def read_root():

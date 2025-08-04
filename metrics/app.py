@@ -7,7 +7,5 @@ from opentelemetry import metrics
 meter = metrics.get_meter(__name__)
 
 app_counter = meter.create_counter(
-    name="app.counter",
-    description="Counts something",
-    unit="1"
+    name="app.counter", description="Counts something", unit="1"
 )

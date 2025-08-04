@@ -9,12 +9,16 @@ from metrics.app import app_counter
 
 router = APIRouter()
 
+
 # Healthcheck endpoint
 @router.get("/health", description="Healthcheck endpoint")
 async def healthcheck():
-    return {"status": "ok"} 
+    return {"status": "ok"}
 
-@router.get("/items/{item_id}", description="Get an item by its ID", response_model=dict)
+
+@router.get(
+    "/items/{item_id}", description="Get an item by its ID", response_model=dict
+)
 async def read_item_v2(
     item_id: int,
     # This is the key change: Depend on the new function to get the user
@@ -27,10 +31,7 @@ async def read_item_v2(
     """
     return {
         "version": "v2",
-        "item_details": {
-            "id": item_id,
-            "description": "This is a V2 item."
-        },
+        "item_details": {"id": item_id, "description": "This is a V2 item."},
         "owner_email": current_user.email,
         "owner_provider": current_user.provider,
         "owner_display_name": current_user.display_name,

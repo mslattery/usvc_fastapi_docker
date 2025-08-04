@@ -6,6 +6,7 @@ from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.sdk.metrics import MeterProvider
 
+
 def instrument_app(app: FastAPI):
     """Configures OpenTelemetry instrumentation for the FastAPI app."""
 

@@ -18,7 +18,10 @@ log = logging.getLogger(__name__)
 config = Config(".env")
 SECRET_KEY = config("SECRET_KEY", cast=Secret, default="A_RANDOM_SECRET_KEY")
 
-def get_auth_service_from_header(x_auth_provider: Annotated[str | None, Header()] = None) -> AuthService:
+
+def get_auth_service_from_header(
+    x_auth_provider: Annotated[str | None, Header()] = None,
+) -> AuthService:
     """Dependency that provides an auth service based on the 'X-Auth-Provider' header."""
     if x_auth_provider == "google":
         return GoogleAuthService()
@@ -32,7 +35,10 @@ def get_auth_service_from_header(x_auth_provider: Annotated[str | None, Header()
             detail="X-Auth-Provider header is missing or invalid. Use 'google', 'okta', or 'mock'.",
         )
 
-def get_auth_service_from_query(provider: Annotated[str, Query(enum=["google", "okta", "mock"])]) -> AuthService:
+
+def get_auth_service_from_query(
+    provider: Annotated[str, Query(enum=["google", "okta", "mock"])],
+) -> AuthService:
     log.info(f"get_auth_service_from_query called with provider: {provider}")
     """Dependency that provides an auth service based on the 'provider' query parameter."""
     if provider == "google":
@@ -41,6 +47,7 @@ def get_auth_service_from_query(provider: Annotated[str, Query(enum=["google", "
         return OktaAuthService()
     elif provider == "mock":
         return MockAuthService()
+
 
 def get_current_active_user(
     request: Request,
@@ -83,4 +90,3 @@ def get_current_active_user(
         detail="Not authenticated. No valid cookie or authorization headers found.",
         headers={"WWW-Authenticate": "Bearer"},
     )
-

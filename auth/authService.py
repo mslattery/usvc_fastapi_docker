@@ -2,11 +2,14 @@
 # File: auth/authService.py
 # =================================================================
 from fastapi import Request, Response
+
 # We import the User model from its new location
 from models.user import User
 
+
 class AuthService:
     """Abstract Base Class for Authentication Services."""
+
     def authenticate(self, token: str) -> User:
         """
         Authenticates a user based on a token.
