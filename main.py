@@ -1,6 +1,7 @@
 # =================================================================
 # File: testAuth.py (Main Application)
 # =================================================================
+import logging
 from typing import Annotated
 from fastapi import FastAPI, Depends, HTTPException, Header, Request, Response as FastAPIResponse
 from fastapi.responses import HTMLResponse
@@ -13,6 +14,11 @@ from models.user import User
 # Import the versioned routers
 from api.v1 import endpoints as v1_endpoints
 from api.v2 import endpoints as v2_endpoints
+
+# Configure basic logging
+logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(asctime)s - %(filename)s - line:%(lineno)d - func:%(funcName)s - %(message)s')
+logger = logging.getLogger(__name__)
+logger.info("Starting FastAPI application...")
 
 # --- FastAPI App Initialization ---
 app = FastAPI(
@@ -33,6 +39,7 @@ app.include_router(v2_endpoints.router, prefix="/api/v2", tags=["v2"])
 async def login(
     auth_service: Annotated[AuthService, Depends(get_auth_service_from_query)]
 ) -> FastAPIResponse:
+    logger.info("Login...")
     return await auth_service.auth_login_redirect()
 
 @app.get("/auth/callback", tags=["Authentication"])

@@ -47,6 +47,8 @@ class MockAuthService(AuthService):
 
         response = HTMLResponse(
             content=f"""<p>Authenticated as {mock_user['display_name']}. 
+            <a href='/'>Home</a> |
+            <a href='/users/me'>View Profile</a> |
             <a href='/api/v1/items/123'>Test API v1</a>            
             | <a href='/api/v2/items/123'>Test API v2</a>            
             | <a href='/auth/logout?provider=mock'>Logout</a></p>"""

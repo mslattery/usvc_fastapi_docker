@@ -9,7 +9,6 @@ from models.user import User
 router = APIRouter()
 
 # Healthcheck endpoint
-@router.get("/hc", description="Healthcheck endpoint")
 @router.get("/health", description="Healthcheck endpoint")
 async def healthcheck():
     return {"status": "ok"} 
