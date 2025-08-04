@@ -34,6 +34,7 @@ terraform.rc
 # Operating system specific files
 .DS_Store # macOS
 
+**/logs
 *.log
 
 .env
