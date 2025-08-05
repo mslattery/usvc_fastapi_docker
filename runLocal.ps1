@@ -62,4 +62,4 @@ if ($Port -lt 1024 -or $Port -gt 65535) {
     exit 1
 }
 
-uvicorn main:app --reload --port $Port
+uvicorn app.main:app --reload --port $Port
