@@ -18,7 +18,7 @@ SECRET_KEY = config("SECRET_KEY", cast=Secret, default="A_RANDOM_SECRET_KEY")
 google_sso = GoogleSSO(
     client_id=GOOGLE_CLIENT_ID,
     client_secret=str(GOOGLE_CLIENT_SECRET),
-    redirect_uri="http://localhost:8000/auth/callback?provider=google",
+    redirect_uri="http://localhost:8989/auth/callback?provider=google",
     allow_insecure_http=True,
     scope=["openid", "email", "profile"],
 )
