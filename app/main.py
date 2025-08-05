@@ -98,9 +98,9 @@ def read_root():
         <h1>Authentication Demo</h1>
         <p>Choose a provider to log in:</p>
         <ul>
-            <li><a href="/auth/login?provider=mock">Login with Mock Service</a></li>
-            <li><a href="/auth/login?provider=google">Login with Google</a></li>
-            <li><a href="/auth/login?provider=okta">Login with Okta (Not Implemented)</a></li>
+            <li><a href="/auth/login?provider=mock" id="mocklogin">Login with Mock Service</a></li>
+            <li><a href="/auth/login?provider=google" id="googlelogin">Login with Google</a></li>
+            <li><a href="/auth/login?provider=okta" id="oktalogin">Login with Okta (Not Implemented)</a></li>
         </ul>
     </body>
     """
