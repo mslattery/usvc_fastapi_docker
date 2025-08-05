@@ -42,4 +42,5 @@ terraform.rc
 *.pyc
 __pycache__/
 
+.coverage
 htmlcov/
