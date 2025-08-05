@@ -3,6 +3,7 @@
 # =================================================================
 from typing import Annotated
 from fastapi import APIRouter, Depends
+from api.v1.healthcheck import perform_healthcheck
 from auth.dependencies import get_current_active_user
 from models.user import User
 from metrics.app import app_counter
@@ -13,7 +14,7 @@ router = APIRouter()
 # Healthcheck endpoint
 @router.get("/health", description="Healthcheck endpoint")
 async def healthcheck():
-    return {"status": "ok"}
+    return await perform_healthcheck()
 
 
 @router.get(
