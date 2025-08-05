@@ -1,0 +1,19 @@
+# pyproject.toml
+
+[tool.coverage.report]
+# You can define regular expressions for lines you want to exclude globally.
+exclude_lines = [
+    # The default pragma, so you can still use it
+    "pragma: no cover",
+
+    # Common patterns to exclude across the entire project
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    
+    # Exclude lines that are only for type checking
+    "if TYPE_CHECKING:", 
+    
+    # Exclude simple function/method definitions that have no logic
+    "def __repr__",
+    "def __str__",
+]

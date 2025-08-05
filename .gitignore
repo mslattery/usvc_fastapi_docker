@@ -41,3 +41,5 @@ terraform.rc
 
 *.pyc
 __pycache__/
+
+htmlcov/
